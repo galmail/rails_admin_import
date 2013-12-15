@@ -51,20 +51,28 @@ module RailsAdminImport
         end
 
         attrs - RailsAdminImport.config(self).excluded_fields 
-      end 
+      end
+      
+      def run_import_from_string(csv_string)
+        self.run_import({"csv_string"=>"#{csv_string}"})
+      end
   
       def run_import(params)
         begin
-          if !params.has_key?(:file)
-            return results = { :success => [], :error => ["You must select a file."] }
+          text = nil
+          if !params.has_key?(:csv_string)
+            if !params.has_key?(:file)
+              return results = { :success => [], :error => ["You must select a file."] }
+            end
+            if RailsAdminImport.config.logging
+              FileUtils.copy(params[:file].tempfile, "#{Rails.root}/log/import/#{Time.now.strftime("%Y-%m-%d-%H-%M-%S")}-import.csv")
+              logger = Logger.new("#{Rails.root}/log/import/import.log")
+            end
+            text = File.read(params[:file].tempfile)
+          else
+            text = params[:csv_string]
           end
-
-          if RailsAdminImport.config.logging
-            FileUtils.copy(params[:file].tempfile, "#{Rails.root}/log/import/#{Time.now.strftime("%Y-%m-%d-%H-%M-%S")}-import.csv")
-            logger = Logger.new("#{Rails.root}/log/import/import.log")
-          end
-
-          text = File.read(params[:file].tempfile)
+          
           clean = text.gsub(/\n$/, '')
           #clean = text.force_encoding('BINARY').encode('UTF-8', :undef => :replace, :replace => '').gsub(/\n$/, '')
           file_check = CSV.new(clean)
