@@ -38,7 +38,7 @@ module RailsAdminImport
       def reset
         @registry = {}
         @logging = false
-        @line_item_limit = 1000
+        @line_item_limit = 5000
       end
 
       # Reset a provided model's configuration.
