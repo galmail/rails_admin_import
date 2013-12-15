@@ -52,10 +52,6 @@ module RailsAdminImport
 
         attrs - RailsAdminImport.config(self).excluded_fields 
       end
-      
-      def run_import_from_string(csv_string)
-        self.run_import({"csv_string"=>"#{csv_string}"})
-      end
   
       def run_import(params)
         begin
